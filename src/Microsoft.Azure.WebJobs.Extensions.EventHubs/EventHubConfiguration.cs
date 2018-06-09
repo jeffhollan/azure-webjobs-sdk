@@ -36,7 +36,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
 
         private string _defaultStorageString;
         private int _batchCheckpointFrequency = 1;
-        private int _batchRetryCount = 5;
+        private int _batchRetryCount = 0;
 
         /// <summary>
         /// Name of the blob container that the EventHostProcessor instances uses to coordinate load balancing listening on an event hub. 
