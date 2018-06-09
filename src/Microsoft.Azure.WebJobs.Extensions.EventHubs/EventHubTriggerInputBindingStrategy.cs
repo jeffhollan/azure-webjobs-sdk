@@ -47,6 +47,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
         {
             var contract = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
             contract.Add("PartitionContext", typeof(PartitionContext));
+            contract.Add("RetryCount", typeof(int));
 
             AddBindingContractMember(contract, "PartitionKey", typeof(string), isSingleDispatch);
             AddBindingContractMember(contract, "Offset", typeof(string), isSingleDispatch);
@@ -76,6 +77,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
 
             var bindingData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             SafeAddValue(() => bindingData.Add(nameof(value.PartitionContext), value.PartitionContext));
+            SafeAddValue(() => bindingData.Add(nameof(value.RetryCount), value.RetryCount));
 
             if (value.IsSingleDispatch)
             {

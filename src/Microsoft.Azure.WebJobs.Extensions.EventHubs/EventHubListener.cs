@@ -190,8 +190,11 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
                             .RetryAsync(_parent._config.BatchRetryCount, (r, retryCount) =>
                             {
                                 _logger.LogError(r.Exception, $"Failed to process batch. Attempting retry: {retryCount}.");
+                                ((EventHubTriggerInput)input.TriggerValue).RetryCount = retryCount;
                             })
-                            .ExecuteAsync(async ct => await _parent._executor.TryExecuteAsync(input, ct), _cts.Token);
+                            .ExecuteAsync(async ct => {
+                                return await _parent._executor.TryExecuteAsync(input, ct);
+                            }, _cts.Token);
                     }
                     else 
                     {

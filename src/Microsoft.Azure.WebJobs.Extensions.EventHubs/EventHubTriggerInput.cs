@@ -12,7 +12,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
     {        
         // If != -1, then only process a single event in this batch. 
         private int _selector = -1;
-
+        private int _retryCount = 0;
         internal EventData[] Events { get; set; }
 
         internal PartitionContext PartitionContext { get; set; }
@@ -24,6 +24,13 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
                 return _selector != -1;
             }
         }
+
+        public int RetryCount
+        {
+            get { return _retryCount;}
+            set { _retryCount = value;}
+        }
+        
 
         public static EventHubTriggerInput New(EventData eventData)
         {
