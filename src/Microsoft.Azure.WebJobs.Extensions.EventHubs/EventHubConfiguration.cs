@@ -36,6 +36,7 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
 
         private string _defaultStorageString;
         private int _batchCheckpointFrequency = 1;
+        private int _batchRetryCount = 5;
 
         /// <summary>
         /// Name of the blob container that the EventHostProcessor instances uses to coordinate load balancing listening on an event hub. 
@@ -74,6 +75,26 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
                     throw new InvalidOperationException("Batch checkpoint frequency must be larger than 0.");
                 }
                 _batchCheckpointFrequency = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the number of retries to attempt before moving to checkpoint or continue. Defaults to 0.
+        /// </summary>
+        public int BatchRetryCount
+        {
+            get
+            {
+                return _batchRetryCount;
+            }
+
+            set
+            {
+                if (value <= 0 || value > 5)
+                {
+                    throw new InvalidOperationException("Batch retry count must be greater than 0 and less than 6.");
+                }
+                _batchRetryCount = value;
             }
         }
 

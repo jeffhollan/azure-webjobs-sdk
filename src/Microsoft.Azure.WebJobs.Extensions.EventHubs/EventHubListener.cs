@@ -11,6 +11,7 @@ using Microsoft.Azure.EventHubs.Processor;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace Microsoft.Azure.WebJobs.ServiceBus
 {
@@ -182,7 +183,20 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
                         TriggerValue = value
                     };
 
-                    FunctionResult result = await _parent._executor.TryExecuteAsync(input, _cts.Token);
+                    if(_parent._config.BatchRetryCount > 0) 
+                    {
+                        await Policy
+                            .HandleResult<FunctionResult>(r => !r.Succeeded)
+                            .RetryAsync(_parent._config.BatchRetryCount, (r, retryCount) =>
+                            {
+                                _logger.LogError(r.Exception, $"Failed to process batch attempt {retryCount}.");
+                            })
+                            .ExecuteAsync(async ct => await _parent._executor.TryExecuteAsync(input, ct), _cts.Token);
+                    }
+                    else 
+                    {
+                        FunctionResult result = await _parent._executor.TryExecuteAsync(input, _cts.Token);
+                    }
                 }
 
                 bool hasEvents = false;
