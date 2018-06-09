@@ -91,7 +91,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             public static void ProcessSingleEvent([EventHubTrigger(TestHubName)] string evt,
                 string partitionKey, DateTime enqueuedTimeUtc, IDictionary<string, object> properties,
-                IDictionary<string, object> systemProperties)
+                IDictionary<string, object> systemProperties, int retryCount)
             {
                 // filter for the ID the current test is using
                 if (evt == EventId)
@@ -100,6 +100,7 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
                     Assert.Equal("value1", properties["TestProp1"]);
                     Assert.Equal("value2", properties["TestProp2"]);
+                    Assert.Equal(0, retryCount);
 
                     Result = evt;
                 }
@@ -107,12 +108,13 @@ namespace Microsoft.Azure.WebJobs.Host.EndToEndTests
 
             public static void ProcessMultipleEvents([EventHubTrigger(TestHub2Name, Connection = TestHub2Connection)] string[] events,
                 string[] partitionKeyArray, DateTime[] enqueuedTimeUtcArray, IDictionary<string, object>[] propertiesArray,
-                IDictionary<string, object>[] systemPropertiesArray)
+                IDictionary<string, object>[] systemPropertiesArray, int retryCount)
             {
                 Assert.Equal(events.Length, partitionKeyArray.Length);
                 Assert.Equal(events.Length, enqueuedTimeUtcArray.Length);
                 Assert.Equal(events.Length, propertiesArray.Length);
                 Assert.Equal(events.Length, systemPropertiesArray.Length);
+                Assert.Equal(0, retryCount);
 
                 for (int i = 0; i < events.Length; i++)
                 {
