@@ -215,6 +215,25 @@ namespace Microsoft.Azure.WebJobs.EventHubs.UnitTests
             Assert.Throws<InvalidOperationException>(() => config.BatchCheckpointFrequency = num);
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(5)]
+        public void EventHubBatchRetryCount(int num)
+        {
+            var config = new EventHubConfiguration();
+            config.BatchRetryCount = num;
+            Assert.Equal(num, config.BatchCheckpointFrequency);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(6)]
+        public void EventHubBatchRetryCount_Throws(int num)
+        {
+            var config = new EventHubConfiguration();
+            Assert.Throws<InvalidOperationException>(() => config.BatchRetryCount = num);
+        }
+
         [Fact]
         public void InitializeFromHostMetadata()
         {
@@ -233,6 +252,7 @@ namespace Microsoft.Azure.WebJobs.EventHubs.UnitTests
                                 { "MaxBatchSize", 100 },
                                 { "PrefetchCount", 200 },
                                 { "BatchCheckpointFrequency", 5 },
+                                { "BatchRetryCount", 5 }
                             }
                         },
                     },
@@ -245,6 +265,7 @@ namespace Microsoft.Azure.WebJobs.EventHubs.UnitTests
             Assert.Equal(100, options.MaxBatchSize);
             Assert.Equal(200, options.PrefetchCount);
             Assert.Equal(5, config.BatchCheckpointFrequency);
+            Assert.Equal(5, config.BatchRetryCount);
         }
 
         private PartitionContext GetPartitionContext()
