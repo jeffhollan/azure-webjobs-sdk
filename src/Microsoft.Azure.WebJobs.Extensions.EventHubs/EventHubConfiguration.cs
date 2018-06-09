@@ -38,6 +38,8 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
         private int _batchCheckpointFrequency = 1;
         private int _batchRetryCount = 0;
 
+        private bool _batchRetryForever = false;
+
         /// <summary>
         /// Name of the blob container that the EventHostProcessor instances uses to coordinate load balancing listening on an event hub. 
         /// Each event hub gets its own blob prefix within the container. 
@@ -95,6 +97,18 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
                     throw new InvalidOperationException("Batch retry count must be greater than 0 and less than 6.");
                 }
                 _batchRetryCount = value;
+            }
+        }
+
+        public bool BatchRetryForever
+        {
+            get
+            {
+                return _batchRetryForever;
+            }
+            set 
+            {
+                _batchRetryForever = value;
             }
         }
 

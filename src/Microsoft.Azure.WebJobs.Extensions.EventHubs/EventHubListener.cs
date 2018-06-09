@@ -185,16 +185,22 @@ namespace Microsoft.Azure.WebJobs.ServiceBus
 
                     if(_parent._config.BatchRetryCount > 0) 
                     {
-                        await Policy
+                        var policyResult = await Policy
                             .HandleResult<FunctionResult>(r => !r.Succeeded)
-                            .RetryAsync(_parent._config.BatchRetryCount, (r, retryCount) =>
+                            .RetryAsync(_parent._config.BatchRetryCount, async (r, retryCount) =>
                             {
-                                _logger.LogError(r.Exception, $"Failed to process batch. Attempting retry: {retryCount}.");
+                                _logger.LogInformation($"Failed to process batch. Attempting retry: {retryCount}.");
                                 ((EventHubTriggerInput)input.TriggerValue).RetryCount = retryCount;
                             })
-                            .ExecuteAsync(async ct => {
+                            .ExecuteAndCaptureAsync(async ct => {
                                 return await _parent._executor.TryExecuteAsync(input, ct);
                             }, _cts.Token);
+
+                            if(_parent._config.BatchRetryForever && policyResult.Outcome == OutcomeType.Failure )
+                            {
+                                _logger.LogInformation($"Failed to process batch after all retries. Stopping listener.");
+                                await _parent.StopAsync(_cts.Token);
+                            }
                     }
                     else 
                     {
